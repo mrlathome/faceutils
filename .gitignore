@@ -99,3 +99,13 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# dlib models
+*.dat
+
+# dump faces
+*.dump
+
+# faces.json and names.json
+names.json
+faces.json

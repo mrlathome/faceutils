@@ -1,0 +1,10 @@
+int16 x
+int16 y
+int16 w
+int16 h
+float32 scale
+string name
+string label
+bool is_known
+bool is_female
+bool is_male
