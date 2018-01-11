@@ -1,4 +1,3 @@
-
 # MRL @Home face recognition
 
 Face recognition using dlib and optimized kNN classification in ROS.
@@ -13,8 +12,8 @@ Face recognition using dlib and optimized kNN classification in ROS.
 * Face detection
 * Face tracker
 * Gender detection
+*  Classification using kNN
 * ROS module
-* Classification using kNN
 
 ## Face detection
 
@@ -48,7 +47,7 @@ With `dlib` face detector , We can find bounding rectangle of faces in each fram
 
 ## Face tracker
 
-Now we found faces in image , It's time to track faces.
+After we found faces in image , It's time to track faces.
 
 #### Why we need to track faces ?
 
@@ -65,6 +64,8 @@ Now we found faces in image , It's time to track faces.
 **3. Tracking preserves identity**
 
 > The output of object detection is an array of rectangles that contain the object. However, there is no identity attached to the object. For example, in the video below, a detector that detects red dots will output rectangles corresponding to all the dots it has detected in a frame. In the next frame, it will output another array of rectangles. In the first frame, a particular dot might be represented by the rectangle at location 10 in the array and in the second frame, it could be at location 17. While using detection on a frame we have no idea which rectangle corresponds to which object. On the other hand, tracking provides a way to literally connect the dots!
+
+From [Object Tracking using OpenCV ](https://www.learnopencv.com/object-tracking-using-opencv-cpp-python/)
 
 ---
 
@@ -117,7 +118,11 @@ In this example , If you run it , And move your face fastly , moving in depth or
 
 ---
 
-We use `correlation tracker` in our Robot ( We named it Robina ) but why we choose it instead of `OpenCV trackers` ? Simply !
+After `dlib 18.13` [Davis King](https://github.com/davisking) implemented a tracker method , This was a method described in the paper:
+
+>Danelljan, Martin, et al. "Accurate scale estimation for robust visual tracking." Proceedings of the British Machine Vision Conference BMVC. 2014.
+
+We use `correlation tracker` in our Robot ( We named it Robina ) but why we choose it instead of `OpenCV trackers` ? 
 
 Correlation tracker has these features :
 1. Fast
@@ -180,7 +185,188 @@ Now , Time to see differences :
 |--|--|
 | ![dlib correlaion tracker](https://github.com/mrl-athomelab/ros-face-recognition/blob/master/resources/dlib_correlation.gif?raw=true) | ![opencv mil tracker](https://github.com/mrl-athomelab/ros-face-recognition/blob/master/resources/opencv_mil.gif?raw=true)  |
 
+You can read about `Adaptive Correlation Filters` on [this](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.709.2172&rep=rep1&type=pdf) paper.
 
 ## Gender detection
 
-...
+We use a binary classification to separate female faces as male faces. To train this classification , we need a dataset , I wrote a scraper ! A bot that can download faces from `imdb`. Here is script of scraper : 
+
+```python
+import requests
+import bs4
+import urllib2
+
+base = "http://www.imdb.com"
+gender = "female"
+
+for start in range(200, 4000, 100):
+    print "Sending GET request ..."
+
+    url = '{}/search/name?gender={}&count=100&start={}'.format(base, gender, start)
+    r = requests.get(url)
+    html = r.text
+    soup = bs4.BeautifulSoup(html, 'html.parser')
+
+    for img in soup.select('.lister-item .lister-item-image'):
+        link = img.find('a').get('href')
+        name = img.find('img').get('alt')
+
+        print "Going to {} profile ...".format(name)
+
+        r = requests.get(base + link)
+        html = r.text
+        soup = bs4.BeautifulSoup(html, 'html.parser')
+        selector = soup.find('time')
+        if selector is None:
+            continue
+        date = selector.get('datetime')
+
+        selector = soup.find('img', {"id": "name-poster"})
+        if selector is None:
+            continue
+        image = selector.get('src')
+
+        print "Downloading profile picture ..."
+        image_file = urllib2.urlopen(image)
+        with open("{}_{}_{}.jpg".format(gender, start, date), 'wb') as output:
+            output.write(image_file.read())
+```
+
+We can run this script for both genders , males and females.
+After retrieving more than 300 images for each gender , It's time to train our classifier.
+
+**Note** : We used [imdb-datasets](https://github.com/mrl-athomelab/imdb-datasets) , The file `scanner.py` may not work with new imdb front-end ! BTW , Repository contains more than 800 images.
+
+#### Time to train classifier !
+
+We used `dlib binary classification`that worked with SVM. 
+
+Here is how we trained our SVM model , `face.py` :
+
+```python
+import dlib
+
+
+detector = dlib.get_frontal_face_detector()
+predictor = dlib.shape_predictor("./data/shape_predictor_68_face_landmarks.dat")
+face_model = dlib.face_recognition_model_v1("./data/dlib_face_recognition_resnet_model_v1.dat")
+
+```
+
+and `train.py` : 
+
+```python
+import glob
+import dlib
+import cv2
+import pickle
+import random
+import face
+import numpy as np
+
+
+def adjust_gamma(input_image, gamma=1.0):
+    table = np.array([((iteration / 255.0) ** (1.0 / gamma)) * 255
+                      for iteration in np.arange(0, 256)]).astype("uint8")
+    return cv2.LUT(input_image, table)
+
+
+def read_image(path, gamma=0.75):
+    output = cv2.imread(path)
+    return adjust_gamma(output, gamma=gamma)
+
+
+def face_vector(input_image):
+    faces = face.detector(input_image, 1)
+    if not faces:
+        return None
+
+    f = faces[0]
+    shape = face.predictor(input_image, f)
+    face_descriptor = face.face_model.compute_face_descriptor(input_image, shape)
+    return face_descriptor
+
+
+max_size = 340
+male_label = +1
+female_label = -1
+
+print "Retrieving males images ..."
+males = glob.glob("./imdb-datasets/images/males/*.jpg")
+print "Retrieved {} faces !".format(len(males))
+
+print "Retrieving females images ..."
+females = glob.glob("./imdb-datasets/images/females/*.jpg")
+print "Retrieved {} faces !".format(len(females))
+
+females = females[:max_size]
+males = males[:max_size]
+
+vectors = dlib.vectors()
+labels = dlib.array()
+
+print "Reading males images ..."
+for i, male in enumerate(males):
+    print "Reading {} of {}\r".format(i, len(males))
+    face_vectors = face_vector(read_image(male))
+    if face_vectors is None:
+        continue
+    vectors.append(dlib.vector(face_vectors))
+    labels.append(male_label)
+
+print "Reading females images ..."
+for i, female in enumerate(females):
+    print "Reading {} of {}\r".format(i, len(females))
+    face_vectors = face_vector(read_image(female))
+    if face_vectors is None:
+        continue
+    vectors.append(dlib.vector(face_vectors))
+    labels.append(female_label)
+
+svm = dlib.svm_c_trainer_radial_basis()
+svm.set_c(10)
+classifier = svm.train(vectors, labels)
+
+print "Prediction for male sample:  {}".format(classifier(vectors[random.randrange(0, max_size)]))
+print "Prediction for female sample: {}".format(classifier(vectors[max_size + random.randrange(0, max_size)]))
+
+with open('gender_model.pickle', 'wb') as handle:
+    pickle.dump(classifier, handle)
+```
+
+then , open terminal and run these commands:
+
+```bash
+	# create a directory
+	# paste codes from train and face module in train.py and face.py
+	git clone https://github.com/mrl-athomelab/imdb-datasets
+	mkdir data
+	cd data
+	# download shape_predictor_68_face_landmarks.dat and 
+	# dlib_face_recognition_resnet_model_v1.dat in this place
+	cd ..
+	python train.py
+```
+
+for test your model , you can use `gender_model.pickle` like this :
+
+```python
+classifier = pickle.load(open('gender_model.pickle', 'r'))
+# face_descriptor from compute_face_descriptor function
+prediction = classifier(compute_face_descriptor)
+```
+
+result of classifier is a float number , you can make it logical with following code :
+
+```python
+def is_male(p, thresh=0.5):
+	return p > thresh
+
+def is_female(p, thresh=-0.5):
+	return p < thresh
+```
+
+![demo of gender detection](https://github.com/mrl-athomelab/ros-face-recognition/blob/master/resources/image.jpg?raw=true)
+
+Credits to [Shahrzad series](www.shahrzadseries.com).
+
