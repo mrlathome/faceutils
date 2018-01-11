@@ -175,9 +175,10 @@ cv2.destroyAllWindows()
 ```
 
 Now , Time to see differences :
-| Dlib correlation | Opencv MIL tracker |
+
+| Dlib correlation | OpenCV MIL tracker |
 |--|--|
-| ![dlib correlaion tracker](https://github.com/mrl-athomelab/ros-face-recognition/blob/master/resources/dlib_correlation.gif?raw=true) | ![opencv mil tracker](https://github.com/mrl-athomelab/ros-face-recognition/blob/master/resources/opencv_mil.gif?raw=true) |
+| ![dlib correlaion tracker](https://github.com/mrl-athomelab/ros-face-recognition/blob/master/resources/dlib_correlation.gif?raw=true) | ![opencv mil tracker](https://github.com/mrl-athomelab/ros-face-recognition/blob/master/resources/opencv_mil.gif?raw=true)  |
 
 
 ## Gender detection
