@@ -35,15 +35,12 @@ class Classifier:
             return 0
 
         distances.sort(key=operator.itemgetter(1))
-        neighbors = []
-        if self.k > len(distances):
-            neighbors.append(distances[0][0])
-        else:
-            for x in range(self.k):
-                neighbors.append(distances[x][0])
+        n = self.k
+        if n > len(distances):
+            n = len(distances)
 
         class_votes = dict()
-        for x in range(len(neighbors)):
+        for x in range(n):
             response = distances[x][2]
             if response in class_votes:
                 class_votes[response] += 1

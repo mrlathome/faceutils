@@ -1,11 +1,9 @@
 #!/usr/bin/env python
 import cv2
 import glob
-import copy
 import os
 import pickle
 import time
-import sys
 import json
 
 import face_api
@@ -83,6 +81,11 @@ class ImageReader:
                     predicted_id = classifier.predict(encoding)
                     if predicted_id != 0:
                         face.details = face_map[predicted_id]
+
+                        # try to find gender.
+                        if face.details["gender"] == "unknown":
+                            face.details["gender"] = face_api.predict_gender(encoding)
+
                     else:
                         face.details["gender"] = face_api.predict_gender(encoding)
                         face_map[face.details["id"]] = face.details

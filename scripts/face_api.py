@@ -25,6 +25,8 @@ def predict_gender(encoding):
     if result < -0.5:
         return "female"
 
+    return "unknown"
+
 
 class Tracker:
     def __init__(self, timeout=None):

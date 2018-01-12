@@ -1,6 +1,6 @@
 <launch>
   <node name="usb_cam" pkg="usb_cam" type="usb_cam_node" output="screen" >
-    <param name="video_device" value="/dev/video1" />
+    <param name="video_device" value="/dev/video0" />
     <param name="image_width" value="640" />
     <param name="image_height" value="480" />
     <param name="pixel_format" value="yuyv" />
@@ -9,7 +9,7 @@
   </node>
   <node name="ros_face_recognition" pkg="ros_face_recognition" type="face_recognition_node.py" respawn="false" output="screen">
     <param name="show_window" value="False" />
-    <param name="tracker_quality" value="15" />
+    <param name="tracker_quality" value="5" />
     <param name="scale" value="0.5" />
   </node>
 </launch>
