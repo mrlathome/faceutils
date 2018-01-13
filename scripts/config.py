@@ -6,7 +6,7 @@ scale = 0.95
 
 # Each face_tracker will die after timeout.
 # Timeout is in seconds.
-tracker_timeout = 15
+tracker_timeout = 5
 
 # The score is bigger for more confident detections.
 # TODO: Find best score.

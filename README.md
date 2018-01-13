@@ -49,6 +49,8 @@ According to dlib notes :
 
 With `dlib` face detector , We can find bounding rectangle of faces in each frames.
 
+![MRL@HOME team](https://github.com/mrl-athomelab/ros-face-recognition/blob/master/resources/image3.jpg?raw=true)
+
 ## Face tracker
 
 After we found faces in image , It's time to track faces.
