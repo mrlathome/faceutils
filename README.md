@@ -187,9 +187,9 @@ cv2.destroyAllWindows()
 
 Now , Time to see differences :
 
-| Dlib correlation | OpenCV MIL tracker |
+| Dlib correlation tracker | OpenCV BOOSTING tracker |
 |--|--|
-| ![dlib correlaion tracker](https://github.com/mrl-athomelab/ros-face-recognition/blob/master/resources/dlib_correlation.gif?raw=true) | ![opencv mil tracker](https://github.com/mrl-athomelab/ros-face-recognition/blob/master/resources/opencv_mil.gif?raw=true)  |
+| ![dlib correlaion tracker](https://github.com/mrl-athomelab/ros-face-recognition/blob/master/resources/dlib_correlation.gif?raw=true) | ![opencv boosting tracker](https://github.com/mrl-athomelab/ros-face-recognition/blob/master/resources/opencv_boosting.gif?raw=true)  |
 
 You can read about `Adaptive Correlation Filters` on [this](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.709.2172&rep=rep1&type=pdf) paper.
 
