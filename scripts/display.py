@@ -5,7 +5,7 @@ import dlib
 import rospy
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
-from face_recognition.srv import Face, Name, NameResponse, FaceResponse
+from ros_face_recognition.srv import Face
 
 import config
 import face_api
@@ -16,11 +16,12 @@ _service = "/{}/faces".format(config.topic_name)
 class ImageReader:
     def __init__(self):
         self.bridge = CvBridge()
-        self.image_sub = rospy.Subscriber(config.image_topic, Image, self.process)
+        self.image_sub = rospy.Subscriber("/camera/rgb/image_raw", Image, self.process)
 
     def process(self, data):
         try:
             image = self.bridge.imgmsg_to_cv2(data, "bgr8")
+            image_h, image_w = image.shape[:2]
 
             rospy.wait_for_service(_service)
             try:
@@ -28,21 +29,17 @@ class ImageReader:
                 resp1 = faces()
                 faces = resp1.faces
                 for f in faces:
+                    print f
                     rect = dlib.rectangle(
-                        int(f.x / f.scale),
-                        int(f.y / f.scale),
-                        int((f.x + f.w) / f.scale),
-                        int((f.y + f.h) / f.scale),
+                        int(f.x * image_w),
+                        int(f.y * image_h),
+                        int((f.x + f.w) * image_w),
+                        int((f.y + f.h) * image_h),
                     )
                     face = face_api.Face(rect)
                     face.details["id"] = f.label
                     face.details["name"] = f.name
-                    gender = "unknown"
-                    if f.is_male:
-                        gender = "male"
-                    if f.is_female:
-                        gender = "female"
-                    face.details["gender"] = gender
+                    face.details["gender"] = f.gender
 
                     face.draw_face(image)
             except rospy.ServiceException, e:

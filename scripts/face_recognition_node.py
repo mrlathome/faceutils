@@ -13,8 +13,8 @@ import knn
 import rospy
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
-from face_recognition.msg import Box
-from face_recognition.srv import Face, Name, NameResponse, FaceResponse
+from ros_face_recognition.msg import Box
+from ros_face_recognition.srv import Face, Name, NameResponse, FaceResponse
 
 _topic = config.topic_name
 _base_dir = os.path.dirname(__file__)
@@ -52,10 +52,14 @@ class ImageReader:
         self.detected_faces = []
         self.known_faces = []
 
+        self.image_shape = (0, 0)
+
     def process(self, data):
         try:
             cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
             image = cv2.resize(cv_image, (0, 0), fx=config.scale, fy=config.scale)
+
+            self.image_shape = image.shape[:2]
 
             original = image.copy()
 
@@ -135,15 +139,16 @@ class ImageReader:
             rospy.logerr(e)
 
     def service_controller(self, r):
+        image_h, image_w = self.image_shape
         boxes = []
         for face in self.detected_faces:
             box = Box()
-            box.x, box.y, box.w, box.h = face.rect.left(), face.rect.top(), face.rect.width(), face.rect.height()
-            box.is_known = face.details["name"] != face.details["id"]
-            box.is_female = face.details["gender"] == "female"
-            box.is_male = face.details["gender"] == "male"
+            box.x = face.rect.left() / float(image_w)
+            box.y = face.rect.top() / float(image_h)
+            box.w = face.rect.width() / float(image_w)
+            box.h = face.rect.height() / float(image_h)
+            box.gender = face.details["gender"]
             box.label = face.details["id"]
-            box.scale = config.scale
             box.name = face.details["name"]
             boxes.append(box)
 
@@ -158,6 +163,9 @@ def main():
         show_window_param = rospy.search_param("show_window")
         tracker_quality_param = rospy.search_param("tracker_quality")
         scale_param = rospy.search_param("scale")
+        image_topic = rospy.search_param("image_topic")
+        if image_topic is not None:
+            config.image_topic = rospy.get_param(image_topic, config.image_topic)
         if show_window_param is not None:
             config.show_window = rospy.get_param(show_window_param, config.show_window)
         if tracker_quality_param is not None:

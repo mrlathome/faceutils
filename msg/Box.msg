@@ -1,10 +1,7 @@
-int16 x
-int16 y
-int16 w
-int16 h
-float32 scale
+float32 x
+float32 y
+float32 w
+float32 h
 string name
 string label
-bool is_known
-bool is_female
-bool is_male
+string gender
