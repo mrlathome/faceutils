@@ -29,7 +29,6 @@ class ImageReader:
                 resp1 = faces()
                 faces = resp1.faces
                 for f in faces:
-                    print f
                     rect = dlib.rectangle(
                         int(f.x * image_w),
                         int(f.y * image_h),

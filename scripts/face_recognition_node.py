@@ -14,7 +14,7 @@ import rospy
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 from ros_face_recognition.msg import Box
-from ros_face_recognition.srv import Face, Name, NameResponse, FaceResponse
+from ros_face_recognition.srv import Face, Name, NameResponse, FaceResponse, Detect, DetectResponse
 
 _topic = config.topic_name
 _base_dir = os.path.dirname(__file__)
@@ -155,6 +155,55 @@ class ImageReader:
         response = FaceResponse(boxes)
         return response
 
+    def detect_controller(self, req):
+        cv_image = self.bridge.imgmsg_to_cv2(req.input_image, "bgr8")
+        image = cv2.resize(cv_image, (0, 0), fx=config.scale, fy=config.scale)
+        positions = face_api.detect_faces(image, min_score=config.detection_score,
+                                          max_idx=config.detection_idx)
+        encodings = face_api.face_descriptor(image, positions)
+
+        image_h, image_w = self.image_shape
+        boxes = []
+
+        for face_position, encoding in zip(self.face_positions, encodings):
+            face = face_api.Face(face_position[0], tracker_timeout=config.tracker_timeout)
+
+            predicted_id = classifier.predict(encoding)
+            if predicted_id != 0:
+                face.details = face_map[predicted_id]
+
+                # try to find gender.
+                if face.details["gender"] == "unknown":
+                    face.details["gender"] = face_api.predict_gender(encoding)
+
+            else:
+                face.details["gender"] = face_api.predict_gender(encoding)
+                face_map[face.details["id"]] = face.details
+
+            if face_map[face.details["id"]]["size"] < config.classification_size:
+                face_map[face.details["id"]]["size"] += 1
+
+                classifier.add_pair(encoding, face.details["id"])
+
+                face_path = os.path.join(_face_dir, face.details["id"])
+                if not os.path.exists(face_path):
+                    os.mkdir(face_path)
+                with open(os.path.join(face_path, "{}.dump".format(int(time.time()))), 'wb') as fp:
+                    pickle.dump(encoding, fp)
+
+            box = Box()
+            box.x = face.rect.left() / float(image_w)
+            box.y = face.rect.top() / float(image_h)
+            box.w = face.rect.width() / float(image_w)
+            box.h = face.rect.height() / float(image_h)
+            box.gender = face.details["gender"]
+            box.label = face.details["id"]
+            box.name = face.details["name"]
+            boxes.append(box)
+
+        response = DetectResponse(boxes)
+        return response
+
 
 def main():
     rospy.init_node(_topic, anonymous=True)
@@ -205,6 +254,9 @@ def main():
 
     rospy.loginfo("Listening to names controller")
     rospy.Service('/{}/names_controller'.format(_topic), Name, name_controller)
+
+    rospy.loginfo("Listening to names controller")
+    rospy.Service('/{}/detect'.format(_topic), Name, image_reader.detect_controller)
 
     try:
         rospy.spin()
