@@ -256,7 +256,7 @@ def main():
     rospy.Service('/{}/names_controller'.format(_topic), Name, name_controller)
 
     rospy.loginfo("Listening to names controller")
-    rospy.Service('/{}/detect'.format(_topic), Name, image_reader.detect_controller)
+    rospy.Service('/{}/detect'.format(_topic), Detect, image_reader.detect_controller)
 
     try:
         rospy.spin()
