@@ -1,8 +1,7 @@
+## MRL @Home face recognition
+> Face recognition using dlib and optimized kNN classification in ROS.
 
-# MRL @Home face recognition
-
-Face recognition using dlib and optimized kNN classification in ROS.
-
+[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
 
 ----------
 
@@ -474,3 +473,8 @@ Labels , samples and distances will extended to same list , then the list will s
 Now we can predict label of input sample using there k nearest neighbors.
 
 I used a limit for classification. It will limit samples of each labels that will help to prevent overlapping.
+
+---
+
+[![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
+[![Made in MRL](https://img.shields.io/badge/Made%20in-Mechatronic%20Research%20Labratories-red.svg)](https://www.qiau.ac.ir/)
