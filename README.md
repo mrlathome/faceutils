@@ -13,7 +13,7 @@ The `Master` branch is heavily under development. Please use `v1` branch instead
 
 ### Wiki
 
-For more information, Please read our notes on [Wiki Pages](https://github.com/mrlathome/ros-face-recognition/wiki).
+For details, please read our notes on [Wiki Pages](https://github.com/mrlathome/ros-face-recognition/wiki).
 
 ---
 
