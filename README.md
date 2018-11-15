@@ -19,6 +19,12 @@ For details, please read our notes on [Wiki Pages](https://github.com/mrlathome/
 
 To install it as ROS module, first of all, install `faceutils` with `pip` and then clone this repository to your `catkin_ws`. Do not forget to run `catkin_make`.
 
+### Contribution
+
+It's simple. Fork and work on it !
+
+Remember to write a tests in `tests` directory before sending PR.
+
 ---
 
 [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
