@@ -5,15 +5,19 @@
 
 ---
 
-![screenshot of MRL@HOME's face recognition](https://github.com/mrl-athomelab/ros-face-recognition/blob/master/resources/screenshot.png?raw=true)
-
 ### Caution
 
 The `Master` branch is heavily under development. Please use `v1` branch instead of `Master`.
 
+![screenshot of MRL@HOME's face recognition](https://github.com/mrl-athomelab/ros-face-recognition/blob/master/resources/screenshot.png?raw=true)
+
 ### Wiki
 
 For details, please read our notes on [Wiki Pages](https://github.com/mrlathome/ros-face-recognition/wiki).
+
+### ROS module
+
+To install it as ROS module, first of all, install `faceutils` with `pip` and then clone this repository to your `catkin_ws`. Do not forget to run `catkin_make`.
 
 ---
 
