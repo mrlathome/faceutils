@@ -15,6 +15,13 @@ The `Master` branch is heavily under development. Please use `v1` branch instead
 
 For details, please read our notes on [Wiki Pages](https://github.com/mrlathome/ros-face-recognition/wiki).
 
+### Tests
+
+```bash
+$ sudo pip install nose
+$ python2.7 -m nose -v --nocapture
+```
+
 ### ROS module
 
 To install it as ROS module, first of all, install `faceutils` with `pip` and then clone this repository to your `catkin_ws`. Do not forget to run `catkin_make`.
