@@ -5,6 +5,10 @@
 
 ---
 
+### Face detector in a Docker image
+
+Take a look at [facedetector](https://github.com/ahmdrz/facedetector). It's a simple Flask and docker-ready application that works as a server to detect faces, genders and their landmarks.
+
 ### Caution
 
 The `Master` branch is heavily under development. Please use `v1` branch instead of `Master`.
