@@ -13,7 +13,7 @@ Take a look at [facedetector](https://github.com/ahmdrz/facedetector). It's a si
 
 The `Master` branch is heavily under development. Please use `v1` branch instead of `Master`.
 
-![Albert Einstein](https://github.com/mrlathome/faceutils/blob/master/resources/einstein-laughing.jpg?raw=true)
+![Albert Einstein](https://github.com/mrlathome/faceutils/blob/master/resources/albert-einstein-2.jpg?raw=true)
 
 ### Wiki
 
