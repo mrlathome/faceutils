@@ -13,11 +13,11 @@ Take a look at [facedetector](https://github.com/ahmdrz/facedetector). It's a si
 
 The `Master` branch is heavily under development. Please use `v1` branch instead of `Master`.
 
-![screenshot of MRL@HOME's face recognition](https://github.com/mrl-athomelab/ros-face-recognition/blob/master/resources/screenshot.png?raw=true)
+![Albert Einstein](https://github.com/mrlathome/faceutils/blob/master/resources/einstein-laughing.jpg?raw=true)
 
 ### Wiki
 
-For details, please read our notes on [Wiki Pages](https://github.com/mrlathome/ros-face-recognition/wiki).
+For details, please read our notes on [Wiki Pages](https://github.com/mrlathome/faceutils/wiki).
 
 ### Tests
 
@@ -35,6 +35,10 @@ To install it as ROS module, first of all, install `faceutils` with `pip` and th
 It's simple. Fork and work on it !
 
 Remember to write a tests in `tests` directory before sending PR.
+
+---
+
+![Faces and Genders](https://github.com/mrlathome/faceutils/blob/master/resources/image.jpg?raw=true)
 
 ---
 

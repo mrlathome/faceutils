@@ -109,3 +109,4 @@ ENV/
 # faces.json and names.json
 names.json
 faces.json
+.vscode
